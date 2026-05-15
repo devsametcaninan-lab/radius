@@ -286,6 +286,10 @@ export default function Home() {
   if (!kullanici) {
     return (
       <main className="w-full max-w-md mx-auto min-h-screen bg-[#030303] text-zinc-100 font-sans p-6 flex flex-col items-center justify-center space-y-6 select-none overflow-hidden">
+        {/* DINAMIK BAŞLIK VE LOGO AYARI */}
+        <title>radius | yakınındakilerle maskeli tartış</title>
+        <meta name="description" content="Maskeni tak, konumunu aç ve yakınındaki insanlarla tamamen anonim şekilde konuşmaya başla." />
+        
         <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.4)] animate-pulse">
           <Radio className="w-7 h-7 text-black stroke-[2.5]" />
         </div>
@@ -313,6 +317,9 @@ export default function Home() {
   if (!konum && !konumHataMesaji) {
     return (
       <main className="w-full max-w-md mx-auto min-h-screen bg-[#030303] text-zinc-100 font-sans p-6 flex flex-col items-center justify-center space-y-6 text-center">
+        {/* DINAMIK BAŞLIK VE LOGO AYARI */}
+        <title>radius | yakınındakilerle maskeli tartış</title>
+        
         <div className="w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center animate-bounce">
           <MapPin className="w-6 h-6 text-cyan-400" />
         </div>
@@ -337,6 +344,8 @@ export default function Home() {
   // ANA UYGULAMA EKRANI (TAM RESPONSIVE / MOBİL UYUMLU)
   return (
     <main className="w-full max-w-md mx-auto min-h-screen bg-[#030303] text-zinc-100 font-sans px-4 pt-2 pb-12 antialiased selection:bg-cyan-500 selection:text-black overscroll-none">
+      {/* DINAMIK BAŞLIK VE LOGO AYARI */}
+      <title>radius | yakınındakilerle maskeli tartış</title>
       
       {/* BAŞLIK VE ÇIKIŞ */}
       <div className="flex justify-between items-center py-3 border-b border-zinc-900 sticky top-0 bg-[#030303]/90 backdrop-blur-md z-50">
