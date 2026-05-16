@@ -339,12 +339,12 @@ export default function Home() {
     <main className="w-full max-w-md mx-auto min-h-screen bg-[#030303] text-zinc-100 font-sans px-4 pt-2 pb-12 antialiased selection:bg-cyan-500 selection:text-black overscroll-none">
       <title>radius | yakınındakilerle maskeli tartış</title>
       
-      <div className="flex justify-between items-center py-3 border-b border-zinc-900 sticky top-0 bg-[#030303]/90 backdrop-blur-md z-50">
+      <div className="flex justify-between items-center py-3 border-b border-zinc-900/60 sticky top-0 bg-[#030303]/90 backdrop-blur-md z-50">
         <div className="flex items-center gap-2">
           <Radio className="w-5 h-5 text-cyan-400 animate-pulse-glow" />
           <h1 className="text-xl font-black tracking-tighter">radius</h1>
         </div>
-        <button onClick={cikisYap} className="text-zinc-500 hover:text-red-400 transition p-1 text-[10px] flex items-center gap-1 font-semibold bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] px-2 py-1 rounded-xl">
+        <button onClick={cikisYap} className="text-zinc-400 hover:text-red-400 transition p-1 text-[10px] flex items-center gap-1 font-semibold bg-zinc-900/60 backdrop-blur-md border border-zinc-800/40   px-2 py-1 rounded-xl">
           Kapat <LogOut className="w-2.5 h-2.5" />
         </button>
       </div>
@@ -359,7 +359,7 @@ export default function Home() {
         {!seciliGonderi ? (
           <motion.div key="duvar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-4 mt-4">
             
-            <div className="bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] rounded-2xl p-4 shadow-xl">
+            <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 shadow-xl">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5"><Sliders className="w-3.5 h-3.5 text-cyan-400" /> Tarama Alanı</span>
                 <span className="text-cyan-400 font-mono text-xs bg-cyan-950/40 border border-cyan-800/30 px-2 py-0.5 rounded-md font-bold">{yariCap} KM</span>
@@ -367,9 +367,9 @@ export default function Home() {
               <input type="range" min="1" max="50" value={yariCap} onChange={(e) => setYariCap(Number(e.target.value))} className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"/>
             </div>
 
-            <div className="bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] rounded-2xl p-4 shadow-2xl space-y-3">
+            <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 shadow-2xl space-y-3">
               <textarea value={yeniMetin} onChange={(e) => setYeniMetin(e.target.value)} placeholder={`${takmaAd} olarak buraya bir şey fırlat...`} className="w-full bg-transparent text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none resize-none field-sizing-content" rows={3} maxLength={280}/>
-              <div className="flex justify-between items-center pt-2 border-t border-zinc-900">
+              <div className="flex justify-between items-center pt-2 border-t border-zinc-900/80">
                 <span className="text-[10px] text-zinc-500 font-mono flex items-center gap-1"><Sparkles className="w-3 h-3 text-yellow-500" /> Kimliğin Şifreli</span>
                 <button onClick={gonderiFirlat} className="bg-cyan-400 hover:bg-cyan-500 text-black font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-[0_5px_15px_rgba(34,211,238,0.25)] transition active:scale-95">Fırlat <Send className="w-3 h-3" /></button>
               </div>
@@ -394,7 +394,7 @@ export default function Home() {
                         delay: Math.min(idx * 0.02, 0.15) 
                       }} 
                       onClick={() => gonderiDetayAc(g)} 
-                      className="bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-4 shadow-xl space-y-3 cursor-pointer group transition duration-150 relative overflow-hidden active:bg-zinc-900/30"
+                      className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/40 hover:border-zinc-700/60 rounded-2xl p-4 shadow-xl space-y-3 cursor-pointer group transition duration-150 relative overflow-hidden active:bg-zinc-900/30"
                     >
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-mono text-yellow-500/90 font-bold">{g.takma_ad}</span>
@@ -414,7 +414,7 @@ export default function Home() {
                       <div className="pt-2 text-zinc-500 text-xs border-t border-zinc-900/50 flex items-center justify-between">
                         <button 
                           onClick={(e) => begeniAt(g.id, e, g.begenilerListesi || [])} 
-                          className={`flex items-center gap-1 py-1 px-2.5 rounded-xl border transition duration-150 ${kullaniciBegenmisMi ? 'bg-red-950/30 border-red-700/40 text-red-400 font-bold' : 'bg-transparent border-transparent hover:bg-zinc-900 text-zinc-500 hover:text-red-400'}`}
+                          className={`flex items-center gap-1 py-1 px-2.5 rounded-xl border transition duration-150 ${kullaniciBegenmisMi ? 'bg-red-950/30 border-red-900/40 text-red-400 font-bold' : 'bg-transparent border-transparent hover:bg-zinc-900 text-zinc-500 hover:text-red-400'}`}
                         >
                           <Heart className={`w-3.5 h-3.5 transition-transform active:scale-125 ${kullaniciBegenmisMi ? 'fill-red-500 text-red-500' : ''}`} />
                           <span>{g.begeniSayisi || 0} Beğeni</span>
@@ -432,9 +432,9 @@ export default function Home() {
           </motion.div>
         ) : (
           <motion.div key="detay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-4 mt-4">
-            <button onClick={() => setSeciliGonderi(null)} className="text-xs text-cyan-400 font-bold bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] px-3 py-2 rounded-xl hover:bg-zinc-900 transition flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" /> Duvara Geri Dön</button>
+            <button onClick={() => setSeciliGonderi(null)} className="text-xs text-cyan-400 font-bold bg-zinc-900/40 backdrop-blur-md border border-zinc-800/40 px-3 py-2 rounded-xl hover:bg-zinc-900 transition flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" /> Duvara Geri Dön</button>
 
-            <div className="bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] rounded-2xl p-4 shadow-2xl space-y-3 relative">
+            <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 shadow-2xl space-y-3 relative">
               <div className="flex justify-between items-center">
                 <div className="text-xs font-mono text-yellow-500 font-bold">{seciliGonderi?.takma_ad}</div>
                 {kullanici && seciliGonderi?.user_id === kullanici.id && (
@@ -443,7 +443,7 @@ export default function Home() {
                   </button>
                 )}
               </div>
-              <p className="text-sm text-zinc-200 leading-relaxed break-words Scientific pr-2">{seciliGonderi?.icerik}</p>
+              <p className="text-sm text-zinc-200 leading-relaxed break-words pr-2">{seciliGonderi?.icerik}</p>
             </div>
 
             <div className="space-y-2 pl-2 border-l border-zinc-900 min-h-[80px]">
@@ -456,7 +456,7 @@ export default function Home() {
                     initial={{ opacity: 0, x: -4 }} 
                     animate={{ opacity: 1, x: 0 }} 
                     transition={{ delay: Math.min(idx * 0.03, 0.15) }} 
-                    className="bg-zinc-950/30 backdrop-blur-sm border border-white/[0.04] rounded-xl p-3 text-xs space-y-1 shadow-md relative group"
+                    className="bg-zinc-900/30 backdrop-blur-sm border border-zinc-800/40 rounded-xl p-3 text-xs space-y-1 shadow-md relative group"
                   >
                     <div className="flex justify-between items-center">
                       <div className="font-mono text-cyan-400 font-bold flex items-center gap-1.5">
@@ -475,7 +475,7 @@ export default function Home() {
               )}
             </div>
 
-            <div className="flex gap-2 items-center bg-zinc-950/50 backdrop-blur-md border border-white/[0.06] p-1.5 rounded-xl shadow-2xl sticky bottom-2">
+            <div className="flex gap-2 items-center bg-zinc-900/60 backdrop-blur-md border border-zinc-800/50 p-1.5 rounded-xl shadow-2xl sticky bottom-2">
               <input type="text" value={yeniYorum} onChange={(e) => setYeniYorum(e.target.value)} placeholder="Maskeni bozmadan bir yorum bırak..." className="flex-1 bg-transparent text-xs p-2 text-zinc-200 focus:outline-none placeholder:text-zinc-700" onKeyDown={(e) => e.key === 'Enter' && yorumFirlat()}/>
               <button onClick={yorumFirlat} className="bg-cyan-400 text-black p-2 rounded-lg hover:bg-cyan-500 transition active:scale-95"><Send className="w-3.5 h-3.5" /></button>
             </div>

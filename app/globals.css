@@ -5,31 +5,6 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  
-  /* Tailwind v4 Uyumlu Animasyon Tanımlamaları */
-  --animate-pulse-glow: pulse-glow 3s infinite ease-in-out;
-
-  @keyframes pulse-glow {
-    0% {
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
-      filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.2));
-    }
-    50% {
-      box-shadow: 0 0 35px rgba(6, 182, 212, 0.6);
-      filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.6));
-    }
-    100% {
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
-      filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.2));
-    }
-  }
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -41,4 +16,27 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Editörü ve Vercel'i yoran @theme yapısı yerine, 
+  Her koşulda çalışan standart ham CSS Animasyonu 
+*/
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+    filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.2));
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(6, 182, 212, 0.5);
+    filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.5));
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+    filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.2));
+  }
+}
+
+/* Global sınıfa bağlıyoruz, tarayıcı bunu doğrudan okuyacak */
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite ease-in-out !important;
 }
