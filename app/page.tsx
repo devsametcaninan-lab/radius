@@ -12,7 +12,7 @@ interface Gonderi {
   boylam: number;
   user_id: string;
   created_at: string;
-  hesaplananMesafe?: number;
+  hesaplanan_mesafe?: number; 
   begeniSayisi?: number;
   begenilerListesi?: any[];
 }
@@ -44,29 +44,29 @@ export default function Home() {
   const [yeniYorum, setYeniYorum] = useState('');
   const [kullanici, setKullanici] = useState<any>(null);
 
-  // Verileri getirme motoru
+  // Verileri getirme motoru - SQL RPC Fonksiyonuna göre tamamen hafifletildi
   const verileriGetir = useCallback(async (lat: number, lng: number, radiusKm: number) => {
-    const { data: gonderilerData, error: gonderiError } = await supabase.from('gonderiler').select('*').order('created_at', { ascending: false });
+    const { data: rpcData, error: rpcError } = await supabase.rpc('yakinlardaki_gonderileri_getir', {
+      kullanici_enlem: lat,
+      kullanici_boylam: lng,
+      yari_cap_km: radiusKm,
+      sayfa_limiti: 40, 
+      atlanacak_sayi: 0
+    });
+
     const { data: begenilerData, error: begeniError } = await supabase.from('begeniler').select('*');
 
-    if (!gonderiError && !begeniError && gonderilerData) {
-      const yerelYazilar = gonderilerData.map((g) => {
+    if (!rpcError && !begeniError && rpcData) {
+      const yerelYazilar = rpcData.map((g: any) => {
         const gonderiBegenileri = begenilerData ? begenilerData.filter((b) => b.gonderi_id === g.id) : [];
-        
-        const R = 6371;
-        const dLat = (g.enlem - lat) * Math.PI / 180;
-        const dLng = (g.boylam - lng) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat * Math.PI / 180) * Math.cos(g.enlem * Math.PI / 180) * Math.sin(dLng/2) * Math.sin(dLng/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        const mesafe = R * c;
         
         return {
           ...g,
-          hesaplananMesafe: mesafe,
+          hesaplanan_mesafe: g.hesaplanan_mesafe,
           begeniSayisi: gonderiBegenileri.length,
           begenilerListesi: gonderiBegenileri
         };
-      }).filter((g) => g.hesaplananMesafe <= radiusKm);
+      });
 
       setGonderiler(yerelYazilar);
     }
@@ -86,7 +86,7 @@ export default function Home() {
         (error) => {
           console.error("Konum hatası:", error);
           setKonumHataMesaji('Konum izni reddedildi. Yakınındakileri görebilmek için tarayıcı ayarlarından konum izni vermen gerekiyor kardo.');
-          const varsayilan = { enlem: 36.78, boylam: 34.60 }; // Mersin Varsayılan
+          const varsayilan = { enlem: 36.78, boylam: 34.60 }; 
           setKonum(varsayilan);
           verileriGetir(varsayilan.enlem, varsayilan.boylam, yariCap);
         },
@@ -156,7 +156,6 @@ export default function Home() {
         verileriGetir(konum.enlem, konum.boylam, yariCap);
       })
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'gonderiler' }, (payload: any) => {
-        // ANLIK SİLME HATASI FIX: Silinen id'yi listeden anında uçur
         setGonderiler((eski) => eski.filter(g => g.id !== payload.old.id));
         verileriGetir(konum.enlem, konum.boylam, yariCap);
       }).subscribe();
@@ -209,7 +208,6 @@ export default function Home() {
   const gonderiSil = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('Bu fırlatmayı tamamen silmek istediğine emin misin?')) {
-      // Önce yerel state'den anında sil ki arayüz kilitlenmesin
       setGonderiler((eski) => eski.filter(g => g.id !== id));
       await supabase.from('gonderiler').delete().eq('id', id);
     }
@@ -282,15 +280,13 @@ export default function Home() {
     }
   };
 
-  // GİRİŞ YAPILMAMIŞSA GÖSTERİLECEK EKRAN
   if (!kullanici) {
     return (
       <main className="w-full max-w-md mx-auto min-h-screen bg-[#030303] text-zinc-100 font-sans p-6 flex flex-col items-center justify-center space-y-6 select-none overflow-hidden">
-        {/* DINAMIK BAŞLIK VE LOGO AYARI */}
         <title>radius | yakınındakilerle maskeli tartış</title>
-        <meta name="description" content="Maskeni tak, konumunu aç ve yakınındaki insanlarla tamamen anonim şekilde konuşmaya başla." />
+        <meta name="description" content="Maskeni tak, konumunu aç and yakınındaki insanlarla tamamen anonim şekilde konuşmaya başla." />
         
-        <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.4)] animate-pulse">
+        <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.4)] animate-pulse-glow">
           <Radio className="w-7 h-7 text-black stroke-[2.5]" />
         </div>
         <div className="text-center space-y-2">
@@ -313,11 +309,9 @@ export default function Home() {
     );
   }
 
-  // MOBİL İÇİN KONUM İZNİ İSTEME EKRANI (PRODÜKSİYON FIX)
   if (!konum && !konumHataMesaji) {
     return (
       <main className="w-full max-w-md mx-auto min-h-screen bg-[#030303] text-zinc-100 font-sans p-6 flex flex-col items-center justify-center space-y-6 text-center">
-        {/* DINAMIK BAŞLIK VE LOGO AYARI */}
         <title>radius | yakınındakilerle maskeli tartış</title>
         
         <div className="w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center animate-bounce">
@@ -341,24 +335,20 @@ export default function Home() {
     );
   }
 
-  // ANA UYGULAMA EKRANI (TAM RESPONSIVE / MOBİL UYUMLU)
   return (
     <main className="w-full max-w-md mx-auto min-h-screen bg-[#030303] text-zinc-100 font-sans px-4 pt-2 pb-12 antialiased selection:bg-cyan-500 selection:text-black overscroll-none">
-      {/* DINAMIK BAŞLIK VE LOGO AYARI */}
       <title>radius | yakınındakilerle maskeli tartış</title>
       
-      {/* BAŞLIK VE ÇIKIŞ */}
       <div className="flex justify-between items-center py-3 border-b border-zinc-900 sticky top-0 bg-[#030303]/90 backdrop-blur-md z-50">
         <div className="flex items-center gap-2">
-          <Radio className="w-5 h-5 text-cyan-400" />
+          <Radio className="w-5 h-5 text-cyan-400 animate-pulse-glow" />
           <h1 className="text-xl font-black tracking-tighter">radius</h1>
         </div>
-        <button onClick={cikisYap} className="text-zinc-500 hover:text-red-400 transition p-1 text-[10px] flex items-center gap-1 font-semibold bg-zinc-950 border border-zinc-900 px-2 py-1 rounded-xl">
+        <button onClick={cikisYap} className="text-zinc-500 hover:text-red-400 transition p-1 text-[10px] flex items-center gap-1 font-semibold bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] px-2 py-1 rounded-xl">
           Kapat <LogOut className="w-2.5 h-2.5" />
         </button>
       </div>
 
-      {/* KONUM HATA UYARISI */}
       {konumHataMesaji && (
         <div className="my-3 p-3 rounded-2xl bg-red-950/20 border border-red-900/40 text-[11px] text-red-400 leading-relaxed font-medium">
           ⚠️ {konumHataMesaji}
@@ -369,8 +359,7 @@ export default function Home() {
         {!seciliGonderi ? (
           <motion.div key="duvar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-4 mt-4">
             
-            {/* RANGE SLIDER (KİLOMETRE ALANI) */}
-            <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-4 shadow-xl">
+            <div className="bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] rounded-2xl p-4 shadow-xl">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5"><Sliders className="w-3.5 h-3.5 text-cyan-400" /> Tarama Alanı</span>
                 <span className="text-cyan-400 font-mono text-xs bg-cyan-950/40 border border-cyan-800/30 px-2 py-0.5 rounded-md font-bold">{yariCap} KM</span>
@@ -378,8 +367,7 @@ export default function Home() {
               <input type="range" min="1" max="50" value={yariCap} onChange={(e) => setYariCap(Number(e.target.value))} className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"/>
             </div>
 
-            {/* GÖNDERİ FIRLATMA KUTUSU */}
-            <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-4 shadow-2xl space-y-3">
+            <div className="bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] rounded-2xl p-4 shadow-2xl space-y-3">
               <textarea value={yeniMetin} onChange={(e) => setYeniMetin(e.target.value)} placeholder={`${takmaAd} olarak buraya bir şey fırlat...`} className="w-full bg-transparent text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none resize-none field-sizing-content" rows={3} maxLength={280}/>
               <div className="flex justify-between items-center pt-2 border-t border-zinc-900">
                 <span className="text-[10px] text-zinc-500 font-mono flex items-center gap-1"><Sparkles className="w-3 h-3 text-yellow-500" /> Kimliğin Şifreli</span>
@@ -387,7 +375,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* AKIŞ DUVARI */}
             <div className="space-y-3">
               {gonderiler.length === 0 ? (
                 <div className="text-center py-10 text-xs text-zinc-600 font-medium">Bu menzilde henüz kimse maskesini çıkarmamış kardo...</div>
@@ -396,12 +383,24 @@ export default function Home() {
                   const kullaniciBegenmisMi = g.begenilerListesi && kullanici ? g.begenilerListesi.some((b: any) => b.user_id === kullanici.id) : false;
                   
                   return (
-                    <motion.div key={g.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(idx * 0.02, 0.15) }} onClick={() => gonderiDetayAc(g)} className="bg-zinc-950 border border-zinc-900 hover:border-zinc-850 rounded-2xl p-4 shadow-xl space-y-3 cursor-pointer group transition duration-150 relative overflow-hidden active:bg-zinc-900/30">
+                    <motion.div 
+                      key={g.id} 
+                      initial={{ opacity: 0, y: 40 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      transition={{ 
+                        type: "spring",
+                        stiffness: 100,
+                        damping: 15,
+                        delay: Math.min(idx * 0.02, 0.15) 
+                      }} 
+                      onClick={() => gonderiDetayAc(g)} 
+                      className="bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-4 shadow-xl space-y-3 cursor-pointer group transition duration-150 relative overflow-hidden active:bg-zinc-900/30"
+                    >
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-mono text-yellow-500/90 font-bold">{g.takma_ad}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-mono text-zinc-400 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-full">
-                            {g.hesaplananMesafe ? `${g.hesaplananMesafe.toFixed(1)} km uzakta` : 'Çok Yakın'}
+                          <span className="text-[9px] font-mono text-zinc-400 bg-zinc-900/60 border border-zinc-800 px-2 py-0.5 rounded-full">
+                            {g.hesaplanan_mesafe ? `${g.hesaplanan_mesafe.toFixed(1)} km uzakta` : 'Çok Yakın'}
                           </span>
                           {kullanici && g.user_id === kullanici.id && (
                             <button onClick={(e) => gonderiSil(g.id, e)} className="text-zinc-600 hover:text-red-400 transition p-1 rounded-lg">
@@ -412,8 +411,7 @@ export default function Home() {
                       </div>
                       <p className="text-sm text-zinc-300 leading-relaxed break-words pr-2">{g.icerik}</p>
                       
-                      {/* LIKES & DISCUSSIONS FOOTER */}
-                      <div className="pt-2 text-zinc-500 text-xs border-t border-zinc-900 flex items-center justify-between">
+                      <div className="pt-2 text-zinc-500 text-xs border-t border-zinc-900/50 flex items-center justify-between">
                         <button 
                           onClick={(e) => begeniAt(g.id, e, g.begenilerListesi || [])} 
                           className={`flex items-center gap-1 py-1 px-2.5 rounded-xl border transition duration-150 ${kullaniciBegenmisMi ? 'bg-red-950/30 border-red-700/40 text-red-400 font-bold' : 'bg-transparent border-transparent hover:bg-zinc-900 text-zinc-500 hover:text-red-400'}`}
@@ -433,11 +431,10 @@ export default function Home() {
             </div>
           </motion.div>
         ) : (
-          // DETAY VE YORUM EKRANI
           <motion.div key="detay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-4 mt-4">
-            <button onClick={() => setSeciliGonderi(null)} className="text-xs text-cyan-400 font-bold bg-zinc-950 border border-zinc-900 px-3 py-2 rounded-xl hover:bg-zinc-900 transition flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" /> Duvara Geri Dön</button>
+            <button onClick={() => setSeciliGonderi(null)} className="text-xs text-cyan-400 font-bold bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] px-3 py-2 rounded-xl hover:bg-zinc-900 transition flex items-center gap-1.5"><ArrowLeft className="w-3.5 h-3.5" /> Duvara Geri Dön</button>
 
-            <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-4 shadow-2xl space-y-3 relative">
+            <div className="bg-zinc-950/40 backdrop-blur-md border border-white/[0.06] rounded-2xl p-4 shadow-2xl space-y-3 relative">
               <div className="flex justify-between items-center">
                 <div className="text-xs font-mono text-yellow-500 font-bold">{seciliGonderi?.takma_ad}</div>
                 {kullanici && seciliGonderi?.user_id === kullanici.id && (
@@ -446,16 +443,21 @@ export default function Home() {
                   </button>
                 )}
               </div>
-              <p className="text-sm text-zinc-200 leading-relaxed break-words">{seciliGonderi?.icerik}</p>
+              <p className="text-sm text-zinc-200 leading-relaxed break-words Scientific pr-2">{seciliGonderi?.icerik}</p>
             </div>
 
-            {/* YORUMLAR AKIŞI */}
             <div className="space-y-2 pl-2 border-l border-zinc-900 min-h-[80px]">
               {yorumlar.length === 0 ? (
                 <p className="text-xs text-zinc-600 italic p-2">Henüz yorum yok, ilk maskeli yorumu sen bırak...</p>
               ) : (
                 yorumlar.map((y, idx) => (
-                  <motion.div key={y.id} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(idx * 0.03, 0.15) }} className="bg-zinc-950/60 border border-zinc-900 rounded-xl p-3 text-xs space-y-1 shadow-md relative group">
+                  <motion.div 
+                    key={y.id} 
+                    initial={{ opacity: 0, x: -4 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    transition={{ delay: Math.min(idx * 0.03, 0.15) }} 
+                    className="bg-zinc-950/30 backdrop-blur-sm border border-white/[0.04] rounded-xl p-3 text-xs space-y-1 shadow-md relative group"
+                  >
                     <div className="flex justify-between items-center">
                       <div className="font-mono text-cyan-400 font-bold flex items-center gap-1.5">
                         {y.takma_ad}
@@ -473,8 +475,7 @@ export default function Home() {
               )}
             </div>
 
-            {/* YORUM GİRİŞ ALANI */}
-            <div className="flex gap-2 items-center bg-zinc-950 border border-zinc-900 p-1.5 rounded-xl shadow-2xl sticky bottom-2">
+            <div className="flex gap-2 items-center bg-zinc-950/50 backdrop-blur-md border border-white/[0.06] p-1.5 rounded-xl shadow-2xl sticky bottom-2">
               <input type="text" value={yeniYorum} onChange={(e) => setYeniYorum(e.target.value)} placeholder="Maskeni bozmadan bir yorum bırak..." className="flex-1 bg-transparent text-xs p-2 text-zinc-200 focus:outline-none placeholder:text-zinc-700" onKeyDown={(e) => e.key === 'Enter' && yorumFirlat()}/>
               <button onClick={yorumFirlat} className="bg-cyan-400 text-black p-2 rounded-lg hover:bg-cyan-500 transition active:scale-95"><Send className="w-3.5 h-3.5" /></button>
             </div>
